@@ -26,15 +26,5 @@ class User(object):
         return json.loads(json.dumps(source), object_hook=User)
     
     def to_dict(self):
-        return user.__dict__
-
+        return self.__dict__
     
-
-user_dict = {'username': 'clementbowe14', 'password': 'safajfb', 'email': 'clementbowe14@gmail.com', 'date_of_birth': '02-23-45'}
-
-user = User.from_dict(user_dict)
-
-print(user)
-bar = user.to_dict()
-
-print(bar)
