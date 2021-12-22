@@ -1,0 +1,6 @@
+import os
+
+DEBUG = True
+ACTIVATION_EMAIL_EXPIRE_DAYS = 5
+TOKEN_EXPIRE_HOURS = 60
+KEY = 'secret'

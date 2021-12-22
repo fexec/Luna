@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#authlib library
+authlib/
+
+#rsa keys
+id_rsa.
+id_rsa.pub
