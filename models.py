@@ -18,9 +18,6 @@ class User(object):
     def __init__(self, user_dict):
         self.__dict__.update(user_dict)
     
-    # def __iter__(self):
-    #     for key in self
-    
     @staticmethod
     def from_dict(source):
         return json.loads(json.dumps(source), object_hook=User)
