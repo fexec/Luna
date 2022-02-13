@@ -22,6 +22,13 @@ class User(object):
     def from_dict(source):
         return json.loads(json.dumps(source), object_hook=User)
     
+    def set_refresh_token(self, token):
+        self.refresh_token = token
+    
+    def clear_refresh_token(self):
+        self.refresh_token = ''
+    
+        
     def to_dict(self):
         return self.__dict__
 

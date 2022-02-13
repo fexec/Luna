@@ -2,6 +2,8 @@ from db import db
 import bcrypt
 from models import User
 from authlib.jose import jwt
+from flask_restful import Resource, api, abort
+import functools
 from datetime import datetime, timedelta
 
 '''
@@ -27,6 +29,8 @@ update_user():
 '''
 checks if username exists and valid password
 '''
+        
+        
 
 def validate_user_credentials(username, password):
     try:
@@ -51,27 +55,31 @@ def update_user_credentials(user):
         user.username)
     user_doc_ref.update(user.to_dict())
     
-
-
-def create_access_token(username):
+    
+def create_access_token(username, key):
     
     header =  {'alg': 'HS256'}
     payload = {'userid': username}
-    key = 'secret'
     token  = jwt.encode(header, payload, key)
   
     return token.decode('utf8')
 
-def create_refresh_token():
+def create_refresh_token(key):
 
     header = {'alg': 'HS256'}
     
     current_date = datetime.now()
-    future_date = current_date +  timedelta(days=15)
+    future_date = current_date +  timedelta(hours=48)
     payload = {'iat':str(current_date), 'exp':str(future_date)}
     key = 'hermpythonsucks'
     token = jwt.encode(header, payload, key)
 
     return token.decode('utf8')
+
+
+
+    
+    
+    
 
 
