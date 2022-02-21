@@ -3,8 +3,10 @@ import json
 
 class User(object):
 
-    def __init__(self, username, password, email, date_of_birth=None, status=None, city=None, country=None,
-    phone_number=None):
+    def __init__(self, username, password, email,
+                 date_of_birth=None, status=None, 
+                 city=None, country=None, refresh_token=None,
+                 phone_number=None):
         
         self.username = username
         self.password = password
@@ -14,6 +16,7 @@ class User(object):
         self.country = country
         self.city = city
         self.phone_number = phone_number
+        self.refresh_token = refresh_token
 
     def __init__(self, user_dict):
         self.__dict__.update(user_dict)
