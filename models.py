@@ -2,7 +2,6 @@ import json
 
 
 class User(object):
-
     def __init__(self, username, password, email,
                  date_of_birth=None, status=None, 
                  city=None, country=None, refresh_token=None,
