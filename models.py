@@ -3,9 +3,11 @@ import json
 
 class User(object):
 
-    def __init__(self, username, password, email, date_of_birth=None, status=None, city=None, country=None,
+    def __init__(self, first_name, last_name, username, password, email, date_of_birth=None, status=None, city=None, country=None,
     phone_number=None):
-        
+
+        self.first_name = first_name
+        self.last_name = last_name   
         self.username = username
         self.password = password
         self.email = email
