@@ -4,6 +4,7 @@ from models import User
 from authlib.jose import jwt
 import functools
 from datetime import datetime, timedelta
+from google.cloud import firestore
 
 '''
 METHODS TO BE IMPLEMENTED
@@ -79,20 +80,31 @@ def create_refresh_token(username, key):
     token = jwt.encode(header, payload, key)
     return token.decode('utf8')
 
-'''
-this method will add an invalid token into the collection of
-banned jwt
-'''
+
 def check_refresh_token(token):
     return 'please login again'
 
+'''
+this method will add an invalid token into the collection of
+banned jwt
+
+uses a utf-8 string of the jwt-token as a document id
+expired jwt documents contain:
+
+byte array token
+date that
+'''
 def deactivate_token(token):
-    return ''
+    try:
+        token_data = {
+            'token': bytes(token, 'utf-8'),
+            'date_added': firestore.SERVER_TIMESTAMP
+        }
+        db.collection(u'expired_tokens').document(token).set(token_data)  
+    
+    except:
+        print('something went wrong while trying to add the jwt to the expired tokens')
 
-def invalid_token():
-    pass
 
     
-    
-
-
+deactivate_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiJqZG9lMTIzIiwiaWF0IjoxNjQ1Mzk5MDY0LCJleHAiOiIyMDIyLTAyLTIxIDAwOjE3OjQ0LjM5MDM3NiIsInJvbGUiOiJVU0VSIn0.NoTL8gIjOfTIw3DxKwyKy6gt8J9e9MFCeDVE5wPCsRk")

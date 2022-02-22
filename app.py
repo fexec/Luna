@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, escape
 import werkzeug.exceptions as ex
 from authlib.integrations.flask_client import OAuth
 from authlib.jose import jwt
@@ -23,11 +23,8 @@ app.config.from_object('config')
 '''
     
 '''
-this function checks if the jwt making the request hasn't been tampered with by malicious users or 
+this decorator function checks if the jwt making the request hasn't been tampered with by malicious users or 
 if the jwt making the request isn't expired.
-
-- if the jwt is expired we want to use the refresh token and create a new access token to make a request for the user
--
 '''
 def login_required(method):
     @functools.wraps(method)
@@ -41,15 +38,16 @@ def login_required(method):
                 raise Exception
            
             else:
+                #decode the token 
                 encoded_token = bytes(token, 'utf-8')
                 decoded = jwt.decode(encoded_token, app.config['KEY'])
                 user = decoded['userid']
-                user_doc_ref = db.collection(u'users').document(user)
+                user_doc = db.collection(u'users').document(user).get()
             
-                if not user_doc_ref.get():
+                if not user_doc.exists:
                     return utils.deactivate_token()
             
-            return method(user_doc_ref.get().to_dict())
+            return method(user_doc.to_dict())
         
         except Exception as e:
             print('used expired token')
@@ -80,7 +78,9 @@ def login_required(method):
 @app.route("/", methods=["GET"])
 @login_required
 def hello_world(user):
-    return jsonify({"greeting": "hello world"}) 
+    sleep_record = db.collections(u'sleep').where('')
+    return jsonify({"greeting": "hello world"})
+ 
                 
 @app.route("/api/login", methods=["POST"])
 def user_login():
@@ -93,7 +93,6 @@ def user_login():
         
         access_token = utils.create_access_token(request.json['username'], app.config['KEY'])
         refresh_token = utils.create_refresh_token(request.json['username'], app.config['KEY'])
-    
         return jsonify({'access_token': access_token, 'refresh_token': refresh_token})
     
     except Exception as e:
@@ -102,22 +101,23 @@ def user_login():
 
 
 def invalid_credentials():
-    return jsonify({'message': 'username or password is incorrect or does not exist'}), 400
+    return jsonify({'message': 'username or password is incorrect or does not exist'})
 
 #when this is ran the access token is added to db of invalidated jwts 
 @app.route("/logout", methods=["POST"])
-def invalidate_access_token():
-    
+def user_logout():
+    try:
     # Bearer <token>
-    request.headers['Authorization'].split(" ")[1]
-    
-    
-    
+        token = request.headers['Authorization'].split(" ")[1]
+        utils.deactivate_token(token)
+        return jsonify({'message': ''})
+    except:
+        return  jsonify({'message': 'error occured'})
+
 
 @app.route("/test", methods=["GET"])
 def test_request():
     print(request.json['username'])
-
     return "Hello, world!"
 
 
