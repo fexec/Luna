@@ -2,7 +2,9 @@ from db import db
 import bcrypt
 from models import User
 from authlib.jose import jwt
+import functools
 from datetime import datetime, timedelta
+from google.cloud import firestore
 
 '''
 METHODS TO BE IMPLEMENTED
@@ -27,15 +29,16 @@ update_user():
 '''
 checks if username exists and valid password
 '''
+        
+        
 
 def validate_user_credentials(username, password):
     try:
         user_doc_ref = db.collection(u'users').document(username)
         user_doc = user_doc_ref.get()
     
-        if user_doc:
+        if user_doc.exists:
             user = User.from_dict(user_doc.to_dict())
-            print(user)
             d = user.to_dict()
             return user.password == password
 
@@ -46,32 +49,62 @@ def validate_user_credentials(username, password):
    
 
 def update_user_credentials(user):
-    
     user_doc_ref = db.collection(u'users').document(
         user.username)
     user_doc_ref.update(user.to_dict())
     
-
-
-def create_access_token(username):
     
+def create_access_token(username, key, role =[]):
+    
+    current_date = datetime.now()
+    future_date = current_date +  timedelta(hours=1)
     header =  {'alg': 'HS256'}
-    payload = {'userid': username}
-    key = 'secret'
+    payload = {'userid': username, 
+               'iat': str(datetime.now()),
+               'exp': str(future_date),
+               'role': 'USER'}
     token  = jwt.encode(header, payload, key)
   
     return token.decode('utf8')
 
-def create_refresh_token():
+def create_refresh_token(username, key):
 
     header = {'alg': 'HS256'}
     
     current_date = datetime.now()
-    future_date = current_date +  timedelta(days=15)
-    payload = {'iat':str(current_date), 'exp':str(future_date)}
-    key = 'hermpythonsucks'
+    future_date = current_date +  timedelta(hours=48)
+    payload = {'iat':str(current_date), 
+               'exp':str(future_date),
+               }
+    
     token = jwt.encode(header, payload, key)
-
     return token.decode('utf8')
 
 
+def check_refresh_token(token):
+    return 'please login again'
+
+'''
+this method will add an invalid token into the collection of
+banned jwt
+
+uses a utf-8 string of the jwt-token as a document id
+expired jwt documents contain:
+
+byte array token
+date that
+'''
+def deactivate_token(token):
+    try:
+        token_data = {
+            'token': bytes(token, 'utf-8'),
+            'date_added': firestore.SERVER_TIMESTAMP
+        }
+        db.collection(u'expired_tokens').document(token).set(token_data)  
+    
+    except:
+        print('something went wrong while trying to add the jwt to the expired tokens')
+
+
+    
+deactivate_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiJqZG9lMTIzIiwiaWF0IjoxNjQ1Mzk5MDY0LCJleHAiOiIyMDIyLTAyLTIxIDAwOjE3OjQ0LjM5MDM3NiIsInJvbGUiOiJVU0VSIn0.NoTL8gIjOfTIw3DxKwyKy6gt8J9e9MFCeDVE5wPCsRk")
