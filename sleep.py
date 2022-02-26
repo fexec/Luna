@@ -21,12 +21,41 @@ def createSleepRecord(userid, start_time=None, end_time=None, sleep_rating=None)
 # Get all Sleep Records for a given user
 def getUserSleepRecords(user_id):
 
-    docs = sleep_record_ref.where(u'userid', u'==', user_id).get()
+    docs_ref = db.collection(u"sleep").where(u'userid', u'==', user_id).order_by(u"date", direction=firestore.Query.DESCENDING)
+
+    docs = docs_ref.get()
 
     list = []
     for doc in docs:
         list.append(doc.to_dict())
     
     return list
- 
+    
+
+def getLastSeven(user_id):
+    
+    # Uses composite index to order the documents
+    docs_ref = db.collection(u"sleep").where(u'userid', u'==', user_id).order_by(u"date", direction=firestore.Query.DESCENDING)
+
+    docs = docs_ref.limit(7).get()
+
+    list = []
+    for doc in docs:
+        list.append(doc.to_dict())
+
+    return list
+
+
+def getLastThirty(user_id):
+
+    # Uses composite index to order the documents
+    docs_ref = db.collection(u"sleep").where(u'userid', u'==', user_id).order_by(u"date", direction=firestore.Query.DESCENDING)
+
+    docs = docs_ref.limit(30).get()
+
+    list = []
+    for doc in docs:
+        list.append(doc.to_dict())
+
+    return list
 #
