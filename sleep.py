@@ -16,4 +16,17 @@ def createSleepRecord(userid, start_time=None, end_time=None, sleep_rating=None)
     # Add Sleep Record to database
     sleep_record = sleep_record_ref.add(sleep_dict)
     
-    return
+    return "Done"
+
+# Get all Sleep Records for a given user
+def getUserSleepRecords(user_id):
+
+    docs = sleep_record_ref.where(u'userid', u'==', user_id).get()
+
+    list = []
+    for doc in docs:
+        list.append(doc.to_dict())
+    
+    return list
+ 
+#
